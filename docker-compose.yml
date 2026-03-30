@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  postgresdb:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: bookuser
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: bookstore
+    ports:
+      - "5433:5432"
+
+  app:
+    depends_on:
+      - postgresdb
+    build: ./app
+    restart: unless-stopped
+    ports:
+      - "6868:8080"
+    environment:
+      DB_HOST: postgresdb
+      DB_USER: bookuser
+      DB_PASSWORD: 123
+      DB_NAME: bookstore
+      DB_PORT: 5432
