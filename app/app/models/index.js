@@ -10,7 +10,6 @@ const sequelize = new Sequelize(
     host: dbConfig.HOST,
     dialect: dbConfig.dialect,
     port: dbConfig.port,
-    operatorsAliases: false,
     pool: dbConfig.pool
   }
 );
@@ -20,6 +19,12 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-db.books = require("./book.model.js")(sequelize, Sequelize);
+// МОДЕЛИ
+db.book = require("./book.model.js")(sequelize, Sequelize);
+db.category = require("./category.model.js")(sequelize, Sequelize);
+db.price_list = require("./price-list.model.js")(sequelize, Sequelize);
+db.price_list_item = require("./price-list-item.model.js")(sequelize, Sequelize);
+db.sale = require("./sale.model.js")(sequelize, Sequelize);
+db.sale_item = require("./sale-item.model.js")(sequelize, Sequelize);
 
 module.exports = db;
