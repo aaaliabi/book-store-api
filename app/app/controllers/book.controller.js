@@ -43,6 +43,32 @@ exports.findAll = (req, res) => {
     });
 };
 
+// ЛР 13: постраничная выгрузка (page, size)
+exports.findAllPaged = (req, res) => {
+  const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+  const size = Math.min(Math.max(parseInt(req.query.size, 10) || 10, 1), 100);
+
+  Book.findAndCountAll({
+    limit: size,
+    offset: (page - 1) * size,
+    order: [["id", "ASC"]]
+  })
+    .then((result) => {
+      res.send({
+        total: result.count,
+        page,
+        size,
+        totalPages: Math.ceil(result.count / size),
+        data: result.rows
+      });
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Error retrieving paged books."
+      });
+    });
+};
+
 exports.findOne = (req, res) => {
   const id = req.params.id;
 
@@ -170,7 +196,6 @@ exports.getCategory = (req, res) => {
     });
 };
 
-// ЛР 12 п.7: raw + replacements + mapToModel (книги в наличии / не в наличии)
 exports.rawInStock = (req, res) => {
   const v = req.query.inStock;
   if (v === undefined || v === null || v === "") {
@@ -195,7 +220,6 @@ exports.rawInStock = (req, res) => {
     });
 };
 
-// ЛР 12 п.7: книги по category_id
 exports.rawByCategory = (req, res) => {
   const categoryId = req.params.categoryId;
 
