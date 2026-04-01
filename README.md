@@ -1,4 +1,5 @@
-/>﻿# Book Store API
+﻿# Book Store API
+
 REST API для книжного магазина на Node.js, Express и Sequelize с базой PostgreSQL. Проект реализует CRUD для книг, категорий, прайс-листов и продаж, а также несколько raw-запросов. Документация доступна через Swagger UI. Проект предполагает определение Бд из 6 таблиц.
 
 <img width="662" height="573" alt="image" src="https://github.com/user-attachments/assets/a85b36d7-1017-4b4a-beb2-173b04da0877" />
