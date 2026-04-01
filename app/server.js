@@ -26,6 +26,9 @@ db.sequelize.sync()
 // порт через env
 const PORT = process.env.NODE_DOCKER_PORT || 8080;
 
+require("./app/routes/category.routes")(app);
+
+
 app.listen(PORT, () => {
   console.log(`Server running on ${PORT}`);
 });
