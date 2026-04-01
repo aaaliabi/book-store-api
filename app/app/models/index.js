@@ -10,7 +10,10 @@ const sequelize = new Sequelize(
     host: dbConfig.HOST,
     dialect: dbConfig.dialect,
     port: dbConfig.port,
-    pool: dbConfig.pool
+    pool: dbConfig.pool,
+    define: {
+      underscored: true
+    }
   }
 );
 
@@ -27,6 +30,5 @@ db.sale = require("./sale.model.js")(sequelize, Sequelize);
 db.sale_item = require("./sale-item.model.js")(sequelize, Sequelize);
 
 require("./references.model.js")(db);
-
 
 module.exports = db;

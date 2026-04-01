@@ -1,9 +1,12 @@
-module.exports = app => {
+module.exports = (app) => {
   const saleItem = require("../controllers/sale-item.controller.js");
   const router = require("express").Router();
 
   router.post("/", saleItem.create);
   router.get("/", saleItem.findAll);
+
+  router.get("/raw/by-sale/:saleId", saleItem.rawBySale);
+
   router.get("/:id", saleItem.findOne);
   router.put("/:id", saleItem.update);
   router.delete("/:id", saleItem.delete);

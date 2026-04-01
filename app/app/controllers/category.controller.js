@@ -1,9 +1,10 @@
 const db = require("../models");
-const Category = db.category; // используем category как таблицу
+const Category = db.category;
 const Op = db.Sequelize.Op;
+const sequelize = db.sequelize;
+const QueryTypes = db.Sequelize.QueryTypes;
 
 exports.create = (req, res) => {
-
   if (!req.body.name) {
     res.status(400).send({
       message: "Name не может быть пустым!"
@@ -21,10 +22,10 @@ exports.create = (req, res) => {
   }
 
   Category.create(category)
-    .then(data => {
+    .then((data) => {
       res.send(data);
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message:
           err.message || "Some error occurred while creating the Category."
@@ -32,13 +33,12 @@ exports.create = (req, res) => {
     });
 };
 
-// Retrieve all Tutorials from the database.
 exports.findAll = (req, res) => {
   Category.findAll()
-    .then(data => {
+    .then((data) => {
       res.send(data);
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message:
           err.message || "Some error occurred while retrieving category."
@@ -46,12 +46,11 @@ exports.findAll = (req, res) => {
     });
 };
 
-// Find a single Tutorial with an id
 exports.findOne = (req, res) => {
   const id = req.params.id;
 
   Category.findByPk(id)
-    .then(data => {
+    .then((data) => {
       if (data) {
         res.send(data);
       } else {
@@ -60,21 +59,20 @@ exports.findOne = (req, res) => {
         });
       }
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message: "Error retrieving Category with id=" + id
       });
     });
 };
 
-// Update a Tutorial by the id in the request
 exports.update = (req, res) => {
   const id = req.params.id;
 
   Category.update(req.body, {
     where: { id: id }
   })
-    .then(num => {
+    .then((num) => {
       if (num == 1) {
         res.send({
           message: "Category was updated successfully."
@@ -85,21 +83,20 @@ exports.update = (req, res) => {
         });
       }
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message: "Error updating Category with id=" + id
       });
     });
 };
 
-// Delete a Tutorial with the specified id in the request
 exports.delete = (req, res) => {
   const id = req.params.id;
 
   Category.destroy({
     where: { id: id }
   })
-    .then(num => {
+    .then((num) => {
       if (num == 1) {
         res.send({
           message: "Category was deleted successfully!"
@@ -110,26 +107,66 @@ exports.delete = (req, res) => {
         });
       }
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message: "Could not delete Category with id=" + id
       });
     });
 };
 
-// Delete all Tutorials from the database.
 exports.deleteAll = (req, res) => {
   Category.destroy({
     where: {},
     truncate: false
   })
-    .then(nums => {
+    .then((nums) => {
       res.send({ message: `${nums} Category were deleted successfully!` });
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message:
           err.message || "Some error occurred while removing all category."
+      });
+    });
+};
+
+// ЛР 12 п.7: корневые категории
+exports.rawRoots = (req, res) => {
+  sequelize
+    .query(
+      "SELECT * FROM categories WHERE parent_category_id IS NULL",
+      {
+        type: QueryTypes.SELECT,
+        model: db.category,
+        mapToModel: true
+      }
+    )
+    .then((rows) => res.send(rows))
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Error executing raw query."
+      });
+    });
+};
+
+// ЛР 12 п.7: подкатегории
+exports.rawChildren = (req, res) => {
+  const parentId = req.params.parentId;
+
+  sequelize
+    .query(
+      "SELECT * FROM categories WHERE parent_category_id = :parentId",
+      {
+        replacements: { parentId },
+        type: QueryTypes.SELECT,
+        model: db.category,
+        mapToModel: true
+      }
+    )
+    .then((rows) => res.send(rows))
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Error executing raw query."
       });
     });
 };

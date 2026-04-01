@@ -1,5 +1,7 @@
 const db = require("../models");
 const SaleItem = db.sale_item;
+const sequelize = db.sequelize;
+const QueryTypes = db.Sequelize.QueryTypes;
 
 exports.create = (req, res) => {
   if (req.body.quantity === undefined || req.body.quantity === null) {
@@ -19,8 +21,8 @@ exports.create = (req, res) => {
   }
 
   SaleItem.create(row)
-    .then(data => res.send(data))
-    .catch(err => {
+    .then((data) => res.send(data))
+    .catch((err) => {
       res.status(500).send({
         message:
           err.message || "Some error occurred while creating the SaleItem."
@@ -30,8 +32,8 @@ exports.create = (req, res) => {
 
 exports.findAll = (req, res) => {
   SaleItem.findAll()
-    .then(data => res.send(data))
-    .catch(err => {
+    .then((data) => res.send(data))
+    .catch((err) => {
       res.status(500).send({
         message:
           err.message || "Some error occurred while retrieving sale items."
@@ -43,7 +45,7 @@ exports.findOne = (req, res) => {
   const id = req.params.id;
 
   SaleItem.findByPk(id)
-    .then(data => {
+    .then((data) => {
       if (data) {
         res.send(data);
       } else {
@@ -52,7 +54,7 @@ exports.findOne = (req, res) => {
         });
       }
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message: "Error retrieving SaleItem with id=" + id
       });
@@ -63,7 +65,7 @@ exports.update = (req, res) => {
   const id = req.params.id;
 
   SaleItem.update(req.body, { where: { id: id } })
-    .then(num => {
+    .then((num) => {
       if (num == 1) {
         res.send({ message: "SaleItem was updated successfully." });
       } else {
@@ -72,7 +74,7 @@ exports.update = (req, res) => {
         });
       }
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message: "Error updating SaleItem with id=" + id
       });
@@ -83,7 +85,7 @@ exports.delete = (req, res) => {
   const id = req.params.id;
 
   SaleItem.destroy({ where: { id: id } })
-    .then(num => {
+    .then((num) => {
       if (num == 1) {
         res.send({ message: "SaleItem was deleted successfully!" });
       } else {
@@ -92,7 +94,7 @@ exports.delete = (req, res) => {
         });
       }
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message: "Could not delete SaleItem with id=" + id
       });
@@ -101,13 +103,35 @@ exports.delete = (req, res) => {
 
 exports.deleteAll = (req, res) => {
   SaleItem.destroy({ where: {}, truncate: false })
-    .then(nums => {
+    .then((nums) => {
       res.send({ message: `${nums} sale items were deleted successfully!` });
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message:
           err.message || "Some error occurred while removing all sale items."
+      });
+    });
+};
+
+// ЛР 12 п.7: все строки продажи по id продажи (raw + replacements + mapToModel)
+exports.rawBySale = (req, res) => {
+  const saleId = req.params.saleId;
+
+  sequelize
+    .query(
+      "SELECT * FROM sale_items WHERE sale_id = :saleId",
+      {
+        replacements: { saleId },
+        type: QueryTypes.SELECT,
+        model: db.sale_item,
+        mapToModel: true
+      }
+    )
+    .then((rows) => res.send(rows))
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Error executing raw query."
       });
     });
 };

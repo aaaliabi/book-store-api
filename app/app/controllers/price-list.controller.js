@@ -1,5 +1,7 @@
 const db = require("../models");
 const PriceList = db.price_list;
+const sequelize = db.sequelize;
+const QueryTypes = db.Sequelize.QueryTypes;
 
 exports.create = (req, res) => {
   if (!req.body.name) {
@@ -15,8 +17,8 @@ exports.create = (req, res) => {
   };
 
   PriceList.create(row)
-    .then(data => res.send(data))
-    .catch(err => {
+    .then((data) => res.send(data))
+    .catch((err) => {
       res.status(500).send({
         message:
           err.message || "Some error occurred while creating the PriceList."
@@ -26,8 +28,8 @@ exports.create = (req, res) => {
 
 exports.findAll = (req, res) => {
   PriceList.findAll()
-    .then(data => res.send(data))
-    .catch(err => {
+    .then((data) => res.send(data))
+    .catch((err) => {
       res.status(500).send({
         message:
           err.message || "Some error occurred while retrieving price lists."
@@ -39,7 +41,7 @@ exports.findOne = (req, res) => {
   const id = req.params.id;
 
   PriceList.findByPk(id)
-    .then(data => {
+    .then((data) => {
       if (data) {
         res.send(data);
       } else {
@@ -48,7 +50,7 @@ exports.findOne = (req, res) => {
         });
       }
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message: "Error retrieving PriceList with id=" + id
       });
@@ -59,7 +61,7 @@ exports.update = (req, res) => {
   const id = req.params.id;
 
   PriceList.update(req.body, { where: { id: id } })
-    .then(num => {
+    .then((num) => {
       if (num == 1) {
         res.send({ message: "PriceList was updated successfully." });
       } else {
@@ -68,7 +70,7 @@ exports.update = (req, res) => {
         });
       }
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message: "Error updating PriceList with id=" + id
       });
@@ -79,7 +81,7 @@ exports.delete = (req, res) => {
   const id = req.params.id;
 
   PriceList.destroy({ where: { id: id } })
-    .then(num => {
+    .then((num) => {
       if (num == 1) {
         res.send({ message: "PriceList was deleted successfully!" });
       } else {
@@ -88,7 +90,7 @@ exports.delete = (req, res) => {
         });
       }
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message: "Could not delete PriceList with id=" + id
       });
@@ -97,15 +99,39 @@ exports.delete = (req, res) => {
 
 exports.deleteAll = (req, res) => {
   PriceList.destroy({ where: {}, truncate: false })
-    .then(nums => {
+    .then((nums) => {
       res.send({
         message: `${nums} price lists were deleted successfully!`
       });
     })
-    .catch(err => {
+    .catch((err) => {
       res.status(500).send({
         message:
           err.message || "Some error occurred while removing all price lists."
+      });
+    });
+};
+
+// ЛР 12 п.7: поиск по имени (ILIKE, параметр :pattern)
+exports.rawSearchByName = (req, res) => {
+  const q = req.query.q;
+  if (!q || String(q).trim() === "") {
+    return res.status(400).send({
+      message: "Query parameter q is required."
+    });
+  }
+
+  sequelize
+    .query("SELECT * FROM price_lists WHERE name ILIKE :pattern", {
+      replacements: { pattern: `%${q}%` },
+      type: QueryTypes.SELECT,
+      model: db.price_list,
+      mapToModel: true
+    })
+    .then((rows) => res.send(rows))
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Error executing raw query."
       });
     });
 };

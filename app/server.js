@@ -12,10 +12,10 @@ app.get("/", (req, res) => {
   res.json({ message: "Book Store API работает" });
 });
 
-// подключение Sequelize
 const db = require("./app/models");
 
-db.sequelize.sync()
+db.sequelize
+  .sync()
   .then(() => {
     console.log("Synced db.");
   })
@@ -23,7 +23,6 @@ db.sequelize.sync()
     console.log("Failed: " + err.message);
   });
 
-// порт через env
 const PORT = process.env.NODE_DOCKER_PORT || 8080;
 
 require("./app/routes/category.routes")(app);
