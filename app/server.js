@@ -27,7 +27,11 @@ db.sequelize.sync()
 const PORT = process.env.NODE_DOCKER_PORT || 8080;
 
 require("./app/routes/category.routes")(app);
-
+require("./app/routes/book.routes")(app);
+require("./app/routes/price-list.routes")(app);
+require("./app/routes/price-list-item.routes")(app);
+require("./app/routes/sale.routes")(app);
+require("./app/routes/sale-item.routes")(app);
 
 app.listen(PORT, () => {
   console.log(`Server running on ${PORT}`);

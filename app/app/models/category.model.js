@@ -5,6 +5,16 @@ module.exports = (sequelize, Sequelize) => {
     },
     description: {
       type: Sequelize.STRING
+    },
+    parentCategoryId: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      references: {
+        model: "categories",
+        key: "id"
+      },
+      onUpdate: "CASCADE",
+      onDelete: "SET NULL"
     }
   });
 

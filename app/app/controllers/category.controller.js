@@ -13,8 +13,12 @@ exports.create = (req, res) => {
 
   const category = {
     name: req.body.name,
-    description: req.body.description 
+    description: req.body.description
   };
+
+  if (Object.prototype.hasOwnProperty.call(req.body, "parentCategoryId")) {
+    category.parentCategoryId = req.body.parentCategoryId;
+  }
 
   Category.create(category)
     .then(data => {
@@ -22,7 +26,7 @@ exports.create = (req, res) => {
     })
     .catch(err => {
       res.status(500).send({
-        message: 
+        message:
           err.message || "Some error occurred while creating the Category."
       });
     });
